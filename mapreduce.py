@@ -86,7 +86,7 @@ if __name__ == "__main__":
     initialize_csv(log_file)  # Create the CSV file with headers
     
     # Load the input text
-    with open("eronEmailDatabase/emails.csv", 'r') as file:
+    with open("testFiles/eronEmailDatabase/emails.csv", 'r') as file:
         input_text = file.read()
     
     # Experiment with different configurations

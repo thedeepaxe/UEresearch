@@ -107,8 +107,8 @@ if __name__ == "__main__":
         # Experiment with different configurations
         for num_cores in [1,4,8,16]:  # Vary the number of cores
             for num_chunks in [4, 8, 16, 32]:  # Experiment with different numbers of chunks
-                print(f"Running MapReduce with {num_chunks} chunks, {num_cores} cores,")
-                mapreduce(input_text, map_function, reduce_function, num_cores=num_cores, chunk_method=chunk_method, log_file=log_file)
+                print(f"Running MapReduce with {num_chunks} chunks, {num_cores} cores")
+                mapreduce(input_text, map_function, reduce_function, num_chunks=num_chunks, num_cores=num_cores, log_file=log_file)
 
     except FileNotFoundError:
         print("Error: Input file not found.")

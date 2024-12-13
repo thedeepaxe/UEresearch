@@ -80,3 +80,38 @@ def mapreduce(input_data, mapper, reducer, num_chunks=4, num_cores=4, chunk_meth
 
     except Exception as e:
         print(f"Error during MapReduce execution: {e}")
+        return None
+
+# Initialize CSV File
+def initialize_csv(file_path):
+    """Create a CSV file and write the header row."""
+    with open(file_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([
+            "Number of Chunks", "Number of Cores", "Chunking Method", "Average Chunk Size",
+            "Map Phase Time (s)", "Reduce Phase Time (s)", "Total Time (s)"
+        ])
+
+# Example Usage
+if __name__ == "__main__":
+    log_file = "results.csv"
+    initialize_csv(log_file)  # Create the CSV file with headers
+
+    # Load the input text
+    try:
+        with open("testFiles/eronEmailDatabase/emails.csv", 'r') as file:
+            input_text = file.read()
+        if not input_text.strip():
+            raise ValueError("Input file is empty.")
+
+        # Experiment with different configurations
+        for num_cores in range(1, 9):  # Vary the number of cores
+            for num_chunks in [4, 8, 16]:  # Experiment with different numbers of chunks
+                for chunk_method in ["equal", "random"]:
+                    print(f"Running MapReduce with {num_chunks} chunks, {num_cores} cores, method: {chunk_method}")
+                    mapreduce(input_text, map_function, reduce_function, num_chunks=num_chunks, num_cores=num_cores, chunk_method=chunk_method, log_file=log_file)
+
+    except FileNotFoundError:
+        print("Error: Input file not found.")
+    except ValueError as e:
+        print(f"Error: {e}")

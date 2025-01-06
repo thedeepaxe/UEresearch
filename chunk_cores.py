@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
         # Experiment with different configurations
         for num_cores in [4,8,16]:  # Vary the number of cores
-            for num_chunks in [16, 32, 64, 128, 256]:  # Experiment with different numbers of chunks
+            for num_chunks in [8,16, 32, 64, 128, 256]:  # Experiment with different numbers of chunks
                 print(f"Running MapReduce with {num_chunks} chunks, {num_cores} cores")
                 mapreduce(input_text, map_function, reduce_function, num_chunks=num_chunks, num_cores=num_cores, log_file=log_file)
 

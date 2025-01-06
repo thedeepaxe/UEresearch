@@ -1,5 +1,5 @@
 import csv
-from multiprocessing import Process, Queue
+from multiprocessing import Pool
 import time
 from Creatingchunks import equal_chunks, random_chunks
 import gc
@@ -27,12 +27,6 @@ def log_results_to_csv(file_path, log_data):
         writer = csv.writer(file)
         writer.writerow(log_data)
 
-# Worker function for each process in the pool
-def worker(queue, result_list, mapper):
-    while not queue.empty():
-        data_chunk = queue.get()
-        result_list.append(mapper(data_chunk))
-
 # Main MapReduce Function
 def mapreduce(input_data, mapper, reducer, num_chunks=4, num_cores=4, chunk_method="equal", log_file="results.csv"):
     """MapReduce function with integrated timing and logging."""
@@ -54,31 +48,15 @@ def mapreduce(input_data, mapper, reducer, num_chunks=4, num_cores=4, chunk_meth
         print(f"Chunking method: {chunk_method}")
         print(f"Number of chunks: {num_chunks}, Number of cores: {num_cores}, Avg chunk size: {avg_chunk_size}")
 
-        # Initialize queue for task distribution and list for collecting results
-        queue = Queue()
-        for chunk in data_chunks:
-            queue.put(chunk)
-
         # Map Phase Timing
         map_start = time.time()
-
-        # Create and start processes with a fixed number (num_cores)
-        result_list = []
-        processes = []
-        for _ in range(num_cores):
-            p = Process(target=worker, args=(queue, result_list, mapper))
-            p.start()
-            processes.append(p)
-
-        # Wait for processes to finish
-        for p in processes:
-            p.join()
-
+        with Pool(processes=num_cores) as pool:  # Pool reintroduced
+            mapped_data = pool.map(mapper, data_chunks)
         map_end = time.time()
 
         # Reduce Phase Timing
         reduce_start = time.time()
-        result = reducer(result_list)
+        result = reducer(mapped_data)
         reduce_end = time.time()
 
         # End total time measurement
@@ -127,8 +105,8 @@ if __name__ == "__main__":
             raise ValueError("Input file is empty.")
 
         # Experiment with different configurations
-        for num_cores in [4,8,16]:  # Vary the number of cores
-            for num_chunks in [8,16, 32, 64, 128, 256]:  # Experiment with different numbers of chunks
+        for num_cores in [4, 8, 16]:  # Vary the number of cores
+            for num_chunks in [16, 32, 64, 128, 256]:  # Experiment with different numbers of chunks
                 print(f"Running MapReduce with {num_chunks} chunks, {num_cores} cores")
                 mapreduce(input_text, map_function, reduce_function, num_chunks=num_chunks, num_cores=num_cores, log_file=log_file)
 
